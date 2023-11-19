@@ -1,0 +1,333 @@
+/*
+1. Make func for max matrix, then allocation matrix, then available resources.
+2. Make func's to calculate need matrix, to calculate total resources.
+3. Make calculation func to find safe sequence.
+4. Add calculation for external request in calculation function.
+*/
+#include<stdio.h>
+
+void inputDisplayMax(int n, int r, int max[n][r])
+{
+	printf("\nEnter resources for MAX matrix");
+	for(int i = 0; i < n; i++)
+	{
+		printf("\nResources for Process (%d) :", i + 1);
+		for(int j = 0; j < r; j++)
+		{
+			scanf("%d", &max[i][j]);
+		}	
+	}
+	
+	printf("\n******MAX MATRIX******\n");
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = 0; j < r; j++)
+		{
+			printf("%d\t", max[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void inputAllocatedResource(int n, int r, int allocated[n][r])
+{
+	printf("\nEnter resources for Allocation matrix");
+	for(int i = 0; i < n; i++)
+	{
+		printf("\nResources for Process (%d) :", i + 1);
+		for(int j = 0; j < r; j++)
+		{
+			scanf("%d", &allocated[i][j]);
+		}	
+	}
+	
+	printf("\n******ALLOCATION MATRIX******\n");
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = 0; j < r; j++)
+		{
+			printf("%d\t", allocated[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void inputAvailableResources(int r, int available[r])
+{
+	printf("\nEnter Available Resources : ");
+	for (int i = 0; i < r; i++) 
+    	{
+		scanf("%d", &available[i]);
+    	}
+    	
+    	printf("\n*****AVAILABLE MATRIX*****\n");
+    	for(int i = 0; i < r; i++)
+	{
+		printf("%d\t", available[i]);
+	}
+}
+
+void calDisplayNeedMatrix(int n, int r, int need[n][r], int max[n][r], int allocated[n][r])
+{
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = 0; j < r; j++)
+		{
+			need[i][j] = max[i][j] - allocated[i][j];
+		}
+	}
+	
+	printf("\n\n*****NEED MATRIX*****\n");
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = 0; j < r; j++)
+		{
+			printf("%d\t", need[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void caltotalResource(int n, int r, int available[r], int allocated[n][r])
+{	
+	int totalAllocated[r];
+	
+	printf("\nTotal no. of Resources :\n");
+	for(int j = 0; j < r; j++)
+	{
+		int sum = 0;
+		for(int i = 0; i < n; i++)
+		{
+			sum = sum + allocated[i][j];
+		}
+		totalAllocated[j] = sum;
+	}
+	
+	for(int k = 0; k < r; k++)
+	{
+		int total[k];
+		total[k] = available[k] + totalAllocated[k];
+		printf("%d\t", total[k]);
+	}
+}
+
+void calculation(int n, int r, int need[n][r], int available[r], int allocated[n][r], int max[n][r], int req[r])
+{
+	int finish[n]; //track processes either they have finished or not
+	int seq[n]; //store safe sequence
+	int index = 0;
+	for(int i = 0; i < n; i++)
+	{
+		finish[i] = 0;
+	}
+	
+	//request function-->
+	int p = 0;
+	printf("\nEnter process for which request is accepted (i.e. 0, 1, 2,...):");
+	scanf("%d", &p);
+	printf("\nRequest resources for process(%d) :", p + 1);
+	printf("\n");
+    	for (int i = 0; i < r; i++) 
+    	{
+		scanf("%d", &req[i]);
+    	}
+    	
+    	for(int j = 0; j < r; j++)
+    	{
+    		if(req[j] <= need[p][j] && req[j] <= available[j])
+    		{
+    			available[j] -= req[j];
+    			allocated[p][j] += req[j];
+    			need[p][j] -= req[j];
+    		}	
+    	}
+    	
+    	printf("\n***The Max Matrix***\n");
+    	for (int i = 0; i < n; i++) 
+    	{
+        		for (int j = 0; j < r; j++) 
+        		{
+            		printf("%d\t", max[i][j]);
+        		}
+        		printf("\n");
+    	}
+    	
+    	printf("\nThe Available Resources on the basis of request: \n");
+	for (int i = 0; i < r; i++) 
+	{
+        		printf("%d\t", available[i]);	
+    	}
+    	printf("\n");
+    	
+    	printf("\nThe Allocation Matrix on the basis of request:\n");
+    	for (int j = 0; j < r; j++) 
+        {
+            	printf("%d\t", allocated[p][j]);
+        }
+        printf("\n");
+        
+        printf("\nThe Need Matrix on the basis of request :\n");
+    	for (int j = 0; j < r; j++) 
+        {
+            printf("%d\t", need[p][j]);
+        }
+        printf("\n");
+        //request function<--
+	
+	
+	
+	for(int p = 0; p < n; p++)
+	{
+	for(int i = 0; i < n; i++)
+	{
+		if(finish[i] == 0)
+		{
+			int flag = 0;// to check if process is safe
+			for(int j = 0; j < r; j++)
+			{
+				if(need[i][j] > available[j])
+				{
+					flag = 1;
+					break;
+				}
+			}
+			if(flag == 0)
+			{
+				seq[index] = i;
+				index++;
+				for(int k = 0; k < r; k++)
+				{
+					available[k] += allocated[i][k];
+				}
+				finish[i] = 1;
+			}
+		}
+	}
+	}
+	
+	int flag2 = 1;//system is safe at 1
+	for(int i = 0; i < n; i++)
+	{
+		if(finish[i] == 0)
+		{
+			flag2 = 0;
+			printf("\n!!!SYSTEM IS NOT SAFE!!!");
+			break;
+		}
+	}
+	if(flag2 == 1)
+	{
+		printf("\nSAFE Sequence is :");
+		for(int i = 0; i < n; i++)
+		{
+			printf("P%d -> ", seq[i] + 1);
+		}
+		printf("DONE");
+		printf("\n");
+	}
+}
+
+int main()
+{
+	int n, r;
+	printf("\nEnter total no. of Processes : ");
+	scanf("%d", &n);
+	
+	printf("Enter total no. of Resources : ");
+	scanf("%d", &r);
+	
+	int need[n][r];
+	int max[n][r];
+	int allocated[n][r];
+	int available[r];
+	int req[r];
+	
+	inputDisplayMax(n, r, max);
+	inputAllocatedResource(n, r, allocated);
+	inputAvailableResources(r, available);
+	calDisplayNeedMatrix(n, r, need, max, allocated);
+	caltotalResource(n, r, available, allocated);
+	calculation(n, r, need, available, allocated, max, req);
+}
+
+/*OUTPUT
+ubuntu@omkar:~$ gcc os_pr6.c
+ubuntu@omkar:~$ ./a.out 
+
+Enter total no. of Processes : 5
+Enter total no. of Resources : 3
+
+Enter resources for MAX matrix
+Resources for Process (1) :7 5 3
+
+Resources for Process (2) : 3 2 2
+
+Resources for Process (3) :9 0 2
+
+Resources for Process (4) :2 2 2
+
+Resources for Process (5) :4 3 3
+
+******MAX MATRIX******
+7	5	3	
+3	2	2	
+9	0	2	
+2	2	2	
+4	3	3	
+
+Enter resources for Allocation matrix
+Resources for Process (1) :0 1 0
+
+Resources for Process (2) :2 0 0
+
+Resources for Process (3) :3 0 2
+
+Resources for Process (4) :2 1 1
+
+Resources for Process (5) :0 0 2
+
+******ALLOCATION MATRIX******
+0	1	0	
+2	0	0	
+3	0	2	
+2	1	1	
+0	0	2	
+
+Enter Available Resources : 3 3 2
+
+*****AVAILABLE MATRIX*****
+3	3	2	
+
+*****NEED MATRIX*****
+7	4	3	
+1	2	2	
+6	0	0	
+0	1	1	
+4	3	1	
+
+Total no. of Resources :
+10	5	7	
+Enter process for which request is accepted (i.e. 0, 1, 2,...):1
+
+Request resources for process(2) :
+1 0 2
+
+***The Max Matrix***
+7	5	3	
+3	2	2	
+9	0	2	
+2	2	2	
+4	3	3	
+
+The Available Resources on the basis of request: 
+2	3	0	
+
+The Allocation Matrix on the basis of request:
+3	0	2	
+
+The Need Matrix on the basis of request :
+0	2	0	
+
+SAFE Sequence is :P2 -> P4 -> P5 -> P1 -> P3 -> DONE
+
+*/
