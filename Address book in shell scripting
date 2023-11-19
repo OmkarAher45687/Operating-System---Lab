@@ -1,0 +1,388 @@
+: '
+1) Do code with each option create, view, insert, delete, modify
+'
+option=0
+while [ $option -ne 6 ]
+do
+	echo -e "\nEnter which operation do you want to perform :-\n1. Create address book\n2. View addreess book\n3. Insert a record\n4. Delete a record\n5. Modify a record\n6. Exit\n"
+	
+	read option 
+	case $option in
+	1) echo -e "\nEnter File name : "
+	    read fname
+	    touch $fname
+	    echo "*********File Created Successfully**********"
+	    ;;
+	   
+	2) cat $fname
+	    ;;
+	   
+
+	3) choice=1
+	    while [ $choice -ne 2 ]
+	    do 
+	    	echo -e "\nEnter Employee ID : "
+	    	read empid
+	    	
+	    	echo -e "\nEnter Employee Name : "
+	    	read empname
+	    	
+	    	flag=0
+	    	while [ $flag -eq 0 ]
+	    	do
+	    		echo -e "\nEnter Employee Mobile No. : "
+	    		read mob
+	    		d=`echo $mob | wc -c` #checking count of mob digit
+	    		d=`expr $d - 1`
+	    		if [ $d -eq 10 ]
+	    		then
+	    			empmob=$mob
+	    			flag=1
+	    		else 
+	    			echo -e "\n***Please Enter Valid Mobile Number !!!***"
+	    		fi
+	    	done
+	    		
+	    	echo -e "\nEnter Employee City : "
+	    	read empcity
+	    	
+	    	echo -e "\nID\tNAME\tMOBILE NO.\tCITY">>$fname
+	    	echo -e "\n$empid\t$empname\t$empmob\t$empcity">>$fname
+	    	
+	    	echo -e "\nDo you want to continue\n1. Yes\n2. No\n"
+	    	read choice
+	    done
+	    ;;
+	
+	4) echo -e "Enter employee Id to delete record :"
+	   read did
+	   grep $did $fname
+	   idval=`grep -n $did $fname | cut -c 1-1`
+	   sed -i '/'$did'/d' $fname
+	   echo -e "\n********Record Deleted******"
+	   ;;
+	    
+	 5) echo "Enter employee id to modify its details :"
+               read id
+               grep $id $fname
+               idval=`grep -n $id $fname | cut -c 1-1`
+               echo "$idnum"
+	    echo -e "Enter which value to replace"
+	    read change
+	    echo -e "Enter with which value to replace"
+	    read replace
+	    sed -i "$idval s/$change/$replace/" $fname
+	    echo -e "\nRecord changed"
+	    ;;
+	*)esac
+done
+
+: '
+OUTPUT :
+ubuntu@omkar:~$ ./os_pr1.sh
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+1
+
+Enter File name : 
+uio
+*********File Created Successfully**********
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+3
+
+Enter Employee ID : 
+101
+
+Enter Employee Name : 
+wer
+
+Enter Employee Mobile No. : 
+7456987451
+
+Enter Employee City : 
+okkk
+
+Do you want to continue
+1. Yes
+2. No
+
+1
+
+Enter Employee ID : 
+102
+
+Enter Employee Name : 
+wer
+
+Enter Employee Mobile No. : 
+4521456325
+
+Enter Employee City : 
+rty
+
+Do you want to continue
+1. Yes
+2. No
+
+1
+
+Enter Employee ID : 
+103
+
+Enter Employee Name : 
+okg
+
+Enter Employee Mobile No. : 
+7456321474
+
+Enter Employee City : 
+duy
+
+Do you want to continue
+1. Yes
+2. No
+
+2
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+101	wer	7456987451	okkk
+
+ID	NAME	MOBILE NO.	CITY
+
+102	wer	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+103	okg	7456321474	duy
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+5
+Enter employee id to modify its details :
+102
+102	wer	4521456325	rty
+
+Enter which value to replace
+wer
+Enter with which value to replace
+qazxcv
+
+Record changed
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+101	wer	7456987451	okkk
+
+ID	NAME	MOBILE NO.	CITY
+
+102	qazxcv	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+103	okg	7456321474	duy
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+4
+Enter employee Id to delete record :
+103
+103	okg	7456321474	duy
+
+********Record Deleted******
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+101	wer	7456987451	okkk
+
+ID	NAME	MOBILE NO.	CITY
+
+102	qazxcv	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+5
+Enter employee id to modify its details :
+102
+102	qazxcv	4521456325	rty
+
+Enter which value to replace
+qazxcv
+Enter with which value to replace
+om
+
+Record changed
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+101	wer	7456987451	okkk
+
+ID	NAME	MOBILE NO.	CITY
+
+102	om	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+4
+Enter employee Id to delete record :
+101
+101	wer	7456987451	okkk
+
+********Record Deleted******
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+
+ID	NAME	MOBILE NO.	CITY
+
+102	om	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+5
+Enter employee id to modify its details :
+102
+102	om	4521456325	rty
+
+Enter which value to replace
+om
+Enter with which value to replace
+OMKAR
+
+Record changed
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+2
+
+ID	NAME	MOBILE NO.	CITY
+
+
+ID	NAME	MOBILE NO.	CITY
+
+102	OMKAR	4521456325	rty
+
+ID	NAME	MOBILE NO.	CITY
+
+
+Enter which operation do you want to perform :-
+1. Create address book
+2. View addreess book
+3. Insert a record
+4. Delete a record
+5. Modify a record
+6. Exit
+
+6
+
+'    
