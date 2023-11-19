@@ -1,0 +1,200 @@
+/*
+1. take input from user then display it.
+2. Use sorting and display it.
+3. Apply round robin func then calculate total wt, and tat and display it.
+*/
+#include<stdio.h>
+#include<stdlib.h>
+
+struct process
+{
+	int pid;
+	int aT;
+	int sT;
+	int wT;
+	int tAT;
+	int cT;
+	int tempST;
+};
+
+void inputData(int totalProcess, struct process arr[])
+{
+	for(int i = 0; i < totalProcess; i++)
+	{
+		printf("\nEnter Process ID : ");
+		scanf("%d", &arr[i].pid);
+		
+		printf("Enter Arrival Time : ");
+		scanf("%d", &arr[i].aT);
+		
+		printf("Enter Service TIme : ");
+		scanf("%d", &arr[i].sT);
+		
+		arr[i].wT = 0;
+		arr[i].tAT = 0;
+		arr[i].cT = 0;
+		arr[i].tempST = arr[i].sT;
+	}
+}
+
+void displayData(int totalProcess, struct process arr[])
+{
+	printf("\n\nPID\tAT\tST\tWT\tTAT");
+	for(int i = 0; i < totalProcess; i++)
+	{
+		printf("\n%d\t%d\t%d\t%d\t%d", arr[i].pid, arr[i].aT, arr[i].tempST, arr[i].wT, arr[i].tAT);
+	}
+	printf("\n");
+}
+
+void sort(int totalProcess, struct process arr[])
+{
+	int flag = 0;
+	for(int i = 0; i < totalProcess - 1; i++)
+	{
+		for(int  j = 0; j < totalProcess - i - 1; j++)
+		{
+			if(arr[j].aT > arr[j + 1].aT)
+			{
+				struct process temp = arr[j];
+                			arr[j] = arr[j + 1];
+                			arr[j + 1] = temp;
+				flag = 1;
+			}
+		}
+		if(flag == 0)
+		{
+			break;
+		}
+	}
+}
+
+void roundRobin(int totalProcess, struct process arr[], int qT)
+{
+	int remainingProcess = totalProcess;
+	int currentProcess = 0;
+	int time = 0;
+	
+	while(remainingProcess > 0)
+	{
+		if(arr[currentProcess].sT > 0)
+		{
+			if(arr[currentProcess].sT <= qT)
+			{
+				time += arr[currentProcess].sT;
+				arr[currentProcess].cT = time;
+				arr[currentProcess].sT  = 0;
+				remainingProcess--;
+			}
+			else
+			{
+				time += qT;
+				arr[currentProcess].sT -= qT;
+			}
+		}
+		currentProcess = (currentProcess + 1) % totalProcess;
+	}
+}
+
+int main()
+{
+	int totalProcess, qT;
+	printf("\nEnter No. of Processes : ");
+	scanf("%d", &totalProcess);
+	
+	printf("\nEnter Quantum Time : ");
+	scanf("%d", &qT);
+	
+	struct process arr[totalProcess];
+	
+	inputData(totalProcess, arr);
+	printf("\nTable Before Execution : \n");
+	displayData(totalProcess, arr);
+	
+	
+	printf("\nTable After Sorting : ");
+	sort(totalProcess, arr);
+	displayData(totalProcess, arr);
+	
+	roundRobin(totalProcess, arr, qT);
+	
+	int totalWT = 0;
+	int totalTAT = 0;
+	for(int i = 0; i < totalProcess; i++)
+	{
+		arr[i].wT = arr[i].cT - arr[i].aT - arr[i].tempST;
+		arr[i].tAT = arr[i].wT + arr[i].tempST;
+		
+		totalWT += arr[i].wT;
+		totalTAT += arr[i].tAT;
+	}
+	
+	printf("\nTable After Execution : ");
+	displayData(totalProcess, arr);
+	
+	printf("\nAverage Waiting Time : %.2f", (float)totalWT / totalProcess);
+	printf("\nAverage Turn Around Time : %.2f", (float)totalTAT / totalProcess);
+	
+	return 0 ;
+}
+
+/*
+OUTPUT:
+ubuntu@omkar:~$ gcc os_pr3.c
+ubuntu@omkar:~$ ./a.out 
+
+Enter No. of Processes : 5
+
+Enter Quantum Time : 2
+
+Enter Process ID : 1
+Enter Arrival Time : 7
+Enter Service TIme : 5
+
+Enter Process ID : 2
+Enter Arrival Time : 3
+Enter Service TIme : 4
+
+Enter Process ID : 3
+Enter Arrival Time : 10
+Enter Service TIme : 3
+
+Enter Process ID : 4
+Enter Arrival Time : 0
+Enter Service TIme : 8
+
+Enter Process ID : 5
+Enter Arrival Time : 12
+Enter Service TIme : 6
+
+Table Before Execution : 
+
+
+PID	AT	ST	WT	TAT
+1	7	5	0	0
+2	3	4	0	0
+3	10	3	0	0
+4	0	8	0	0
+5	12	6	0	0
+
+Table After Sorting : 
+
+PID	AT	ST	WT	TAT
+4	0	8	0	0
+2	3	4	0	0
+1	7	5	0	0
+3	10	3	0	0
+5	12	6	0	0
+
+Table After Execution : 
+
+PID	AT	ST	WT	TAT
+4	0	8	18	26
+2	3	4	7	11
+1	7	5	10	15
+3	10	3	4	7
+5	12	6	6	12
+
+Average Waiting Time : 9.00
+Average Turn Around Time : 14.20
+*/
