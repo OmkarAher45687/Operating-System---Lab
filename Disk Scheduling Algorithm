@@ -1,0 +1,259 @@
+/*
+1. Take inputs in main function and arranged request in increasing order.
+2. Make sstf, clook, scan function.
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include<limits.h>
+void sstf(int n, int request[], int head)
+{
+	bool visited[n];
+	int seek_sequence[n];
+    	int seek_count = 0;
+	
+	for(int i = 0; i < n; i++)
+	{
+		visited[i] = false;
+	}
+	
+	for(int i = 0; i < n; i++)
+	{
+		int min_distance = INT_MAX;
+		int index = -1;
+		for(int j = 0; j < n; j++)
+		{
+			if(!visited[j] && abs(head -  request[j]) < min_distance)
+			{
+				index = j;
+				min_distance = abs(head - request[j]);
+			}
+		}
+		visited[index] = true;
+		seek_sequence[i] = request[index];
+		seek_count += min_distance;
+		head = request[index];
+	}
+	printf("\nSSTF Disk Scheduling Algorithm:\n");
+    	printf("Total seek time: %d\n", seek_count);
+    	printf("Seek sequence: ");
+    	for (int i = 0; i < n; i++) 
+   	{
+        		printf("%d ", seek_sequence[i]);
+    	}
+    	printf("\n\n");
+}
+
+void cLook(int n, int request[], int head, int direction)
+{
+	int index;
+	int curr_track;
+	
+	int distance;
+	int seek_sequence[n];
+    	int seek_count = 0;
+	
+	
+	for(index = 0; index < n; index++)
+	{
+		if(head < request[index])
+			break;
+	}
+	int left = index - 1;
+	int right = index;
+	
+	for(int i = 0; i < n; i++)
+	{
+		if(direction == 0)
+		{
+			if(left <= 0)
+			{
+				curr_track = request[0];
+				left = n - 1;
+			}
+			else
+			{
+				curr_track = request[left];
+				left--;
+			}
+		}
+		else if(direction == 1)
+		{
+			curr_track = request[right];
+			right = (right + 1) % n;
+		}
+		
+		distance = abs(head - curr_track);
+		seek_sequence[i] = curr_track;
+		head = curr_track;
+		seek_count += distance;
+	}
+	printf("\nC-LOOK Disk Scheduling Algorithm:\n");
+    	printf("Total seek time: %d\n", seek_count);
+    	printf("Seek sequence: ");
+    	for (int i = 0; i < n; i++) 
+   	{
+        		printf("%d ", seek_sequence[i]);
+    	}
+    	printf("\n\n");
+}
+
+void scan(int n, int request[], int head, int direction, int disk_size)
+{
+	int index;
+	int curr_track;
+	
+	int distance;
+	int seek_sequence[n + 1];
+    	int seek_count = 0;
+	
+	
+	for(index = 0; index < n; index++)
+	{
+		if(head < request[index])
+			break;
+	}
+	
+	int left = index - 1;
+	int right = index;
+	int seek_sequence_index = 0;
+	
+	if(direction == 1)
+	{
+		while(right < n)
+		{
+			curr_track = request[right];
+			distance = abs(curr_track - head);
+			seek_count += distance;
+			seek_sequence[seek_sequence_index++] = curr_track;
+			head = curr_track;
+			right++;
+		}
+		curr_track = disk_size - 1;
+		distance = abs(curr_track - head);
+		seek_count += distance;
+		seek_sequence[seek_sequence_index++] = curr_track;
+		head = curr_track;
+		
+		while(left >= 0)
+		{
+			curr_track = request[left];
+			distance = abs(curr_track - head);
+			seek_count += distance;
+			seek_sequence[seek_sequence_index++] = curr_track;
+			head = curr_track;
+			left--;	
+		}
+	}
+	else if(direction == 0)
+	{
+		while(left >= 0)
+		{
+			curr_track = request[left];
+			distance = abs(curr_track - head);
+			seek_count += distance;
+			seek_sequence[seek_sequence_index++] = curr_track;
+			head = curr_track;
+			left--;	
+		}
+		curr_track = 0;
+		distance = abs(curr_track - head);
+		seek_count += distance;
+		seek_sequence[seek_sequence_index++] = curr_track;
+		head = curr_track;
+		
+		while(right < n)
+		{
+			curr_track = request[right];
+			distance = abs(curr_track - head);
+			seek_count += distance;
+			seek_sequence[seek_sequence_index++] = curr_track;
+			head = curr_track;
+			right++;
+		}
+	}
+	printf("\nSCAN Disk Scheduling Algorithm:\n");
+    	printf("Total seek time: %d\n", seek_count);
+    	printf("Seek sequence: ");
+    	for (int i = 0; i <= n; i++) 
+   	{
+        		printf("%d ", seek_sequence[i]);
+    	}
+    	printf("\n\n");
+}
+
+int main()
+{
+	int n, head, direction;
+	int disk_size = 200;
+	
+	printf("\nEnter total no. of Request : ");
+	scanf("%d", &n);
+	
+	printf("\nEnter Disk Size : ");
+	scanf("%d", &disk_size);
+	
+	int request[n];
+	printf("\nEnter the requests: ");
+	for(int i = 0; i < n; i++)
+	{
+		scanf("%d", &request[i]);
+	}
+	
+	printf("\nEnter initial head position:");
+	scanf("%d", &head);
+	
+	printf("\nEnter Direction (0 for left, 1 for right) :");
+	scanf("%d", &direction);
+	
+	for(int i = 0; i < n - 1; i++)
+	{
+		for(int j = i + 1; j < n; j++)
+		{
+			if(request[i] > request[j])
+			{
+				int temp = request[i];
+				request[i] = request[j];
+				request[j] = temp; 
+			}
+		}
+	}
+	
+	sstf(n, request, head);
+	cLook(n, request, head, direction);
+	scan(n, request, head, direction, disk_size);
+	
+	return 0;
+}
+
+/*OUTPUT:
+ubuntu@omkar:~$ gcc os_pr7.c
+ubuntu@omkar:~$ ./a.out
+
+Enter total no. of Request : 7
+
+Enter Disk Size : 
+200
+
+Enter the requests: 82 170 43 140 24 16 190
+
+Enter initial head position:50
+
+Enter Direction (0 for left, 1 for right) :1
+
+SSTF Disk Scheduling Algorithm:
+Total seek time: 208
+Seek sequence: 43 24 16 82 140 170 190 
+
+
+C-LOOK Disk Scheduling Algorithm:
+Total seek time: 341
+Seek sequence: 82 140 170 190 16 24 43 
+
+
+SCAN Disk Scheduling Algorithm:
+Total seek time: 332
+Seek sequence: 82 140 170 190 199 43 24 16 
+
+*/
