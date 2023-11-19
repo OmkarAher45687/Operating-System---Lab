@@ -1,0 +1,209 @@
+/*CASE 1: Orphan State
+#include<stdio.h>
+#include<unistd.h>
+#include<sys/types.h>
+
+int main()
+{
+	pid_t pid;
+	pid = fork();
+	
+	if(pid == 0)
+	{
+		sleep(5);//child process delayed by 5 sec to kill parent which gives us orphan state. now the parent id of child is adopted parent id
+		printf("\n***CHILD PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d", getppid());
+	}
+	else
+	{
+		printf("\n***PARENT PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d", getppid());
+	}
+}*/
+/*OUTPUT :
+ubuntu@omkar:~$ gcc os_pr2.c
+ubuntu@omkar:~$ ./a.out 
+
+***PARENT PROCESS***
+Process ID : 4249
+Parent Process ID : 4166ubuntu@omkar:~$ 
+***CHILD PROCESS***
+Process ID : 4250
+Parent Process ID : 1674
+*/
+
+/*CASE 2 : Zombie State
+#include<stdio.h>
+
+int main()
+{
+	pid_t pid;
+	pid = fork();
+	
+	if(pid == 0)
+	{
+		printf("\n***CHILD PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d", getppid());
+	}
+	else
+	{
+		system("ps");
+		sleep(5);//it is for zoobie state (child killed but its memory is not deallocate and parent is alive)
+		pid = wait();//parent is waiting till the parent to know that at least one child get terminated.
+		system("ps");
+		printf("\n***PARENT PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d", getppid());
+	}
+} 
+*/
+/*OUTPUT:
+ubuntu@omkar:~$ gcc os_pr2.c
+ubuntu@omkar:~$ ./a.out 
+
+***CHILD PROCESS***
+Process ID : 4308
+Parent Process ID : 4307    
+    PID TTY          TIME CMD
+   4166 pts/0    00:00:00 bash
+   4307 pts/0    00:00:00 a.out
+   4308 pts/0    00:00:00 a.out <defunct>
+   4309 pts/0    00:00:00 sh
+   4310 pts/0    00:00:00 ps
+   
+    PID TTY          TIME CMD
+   4166 pts/0    00:00:00 bash
+   4307 pts/0    00:00:00 a.out
+   4311 pts/0    00:00:00 sh
+   4312 pts/0    00:00:00 ps
+
+***PARENT PROCESS***
+Process ID : 4307
+Parent Process ID : 4166
+*/
+
+/*CASE 3:
+#include<stdio.h>
+#include<unistd.h>
+int main()
+{
+	pid_t pid;
+	int n;
+	printf("\nEnter size of array :");
+	scanf("%d", &n);
+	
+	int arr[n];
+	for(int i = 0; i < n; i++)
+	{
+		printf("\nEnter element %d:", i+1);
+		scanf("%d", &arr[i]);
+	}
+	pid = fork();
+	if(pid == 0)
+	{
+		printf("\n***CHILD PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d\n", getppid());
+	
+		int flag = 0;
+		for(int i = 0; i < n - 1; i++)
+		{
+			for(int j = 0; j < n - i - 1; j++)
+			{
+				if(arr[j] > arr[j + 1])
+				{
+				    	int temp;
+   					temp = arr[j];
+					arr[j] = arr[j + 1];
+					arr[j + 1]=temp;
+					flag = 1;
+				}
+			}
+			if(flag == 0)
+				break;
+		}
+		printf("\nAscending order :");
+   		for(int i = 0; i < n; i++)
+		{
+   			printf(" %d\t", arr[i]);
+		}
+	}
+	else
+	{
+		system("ps");
+		sleep(5);
+		pid = wait();
+		system("ps");
+		printf("\n***PARENT PROCESS***");
+		printf("\nProcess ID : %d", getpid());
+		printf("\nParent Process ID : %d", getppid());
+		
+		int flag = 0;
+		for(int i = 0; i < n - 1; i++)
+		{
+			for(int j = 0; j < n - i - 1; j++)
+			{
+				if(arr[j] < arr[j + 1])
+				{
+				    	int temp;
+   					temp = arr[j];
+					arr[j] = arr[j + 1];
+					arr[j + 1]=temp;
+					flag = 1;
+				}
+			}
+			if(flag == 0)
+				break;
+		}
+		printf("\nDescending order :");
+   		for(int i = 0; i < n; i++)
+		{
+   			printf(" %d\t", arr[i]);
+		}
+	}
+}
+*/
+/*OUTPUT:
+ubuntu@omkar:~$ gcc os_pr2.c
+ubuntu@omkar:~$ ./a.out 
+
+Enter size of array :5
+
+Enter element 1:4
+
+Enter element 2:8
+
+Enter element 3:2
+
+Enter element 4:5
+
+Enter element 5:9
+
+***CHILD PROCESS***
+Process ID : 4525
+Parent Process ID : 4524
+
+Ascending order : 2	 4	 5	 8	 9	    
+    PID TTY          TIME CMD
+   4166 pts/0    00:00:00 bash
+   4500 pts/0    00:00:00 a.out
+   4524 pts/0    00:00:00 a.out
+   4525 pts/0    00:00:00 a.out <defunct>
+   4526 pts/0    00:00:00 sh
+   4527 pts/0    00:00:00 ps
+   
+    PID TTY          TIME CMD
+   4166 pts/0    00:00:00 bash
+   4500 pts/0    00:00:00 a.out
+   4524 pts/0    00:00:00 a.out
+   4529 pts/0    00:00:00 sh
+   4530 pts/0    00:00:00 ps
+
+***PARENT PROCESS***
+Process ID : 4524
+Parent Process ID : 4166
+Descending order : 9	 8	 5	 4	 2	
+*/
