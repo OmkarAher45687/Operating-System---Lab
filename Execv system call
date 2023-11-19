@@ -1,0 +1,113 @@
+/*
+1. Make a.c file and use sorting in child process & use wait fun in parent process.
+2. Make b.c file and use binary search fun in main method.
+*/
+
+//a.c
+#include<stdio.h>
+#include<unistd.h>
+
+void main(int argc, char* argv[])
+{
+	pid_t pid;
+	pid = fork();
+	if(pid == 0)
+	{
+		printf("\nOLD CHILD process, PROCESS ID : %d", getpid());
+		char *arr[argc];
+		for(int i = 1; i < argc; i++)
+		{
+			arr[i - 1] = argv[i];
+		}	
+		arr[argc - 1] = NULL;
+		printf("\nSORTING : ");
+		int flag = 0;
+		for(int i = 0; i < argc - 2; i++)
+		{
+			for(int j = 0; j < argc - i - 2; j++)
+			{
+				if(atoi(arr[j]) > atoi(arr[j + 1]))
+				{
+					char* temp;
+	   				temp = arr[j];
+					arr[j] = arr[j + 1];
+					arr[j + 1]=temp;
+					flag = 1;
+				}
+			}
+			if (flag == 0)
+				break;
+		}
+		for(int i = 1; i < argc - 1; i++)
+		{
+			printf("%s\t", arr[i]);
+		}
+		printf("\n");
+		execv(arr[0], arr);
+	}
+	else
+	{
+		pid = wait();
+		printf("\nPARENT PROCESS, Process ID: %d", getpid());
+	}
+}
+
+/*os_b.c
+#include<stdio.h>
+#include<unistd.h>
+
+void binarySearch(int a[], int min, int max, int val)
+{
+	int mid;
+	printf("\nEnter the value to search :");
+	scanf("%d", &val);
+	
+	while(min <= max)
+	{
+		mid = (min + max)/2;
+		
+		if(a[mid] == val)
+		{
+			printf("Location :%d", mid);
+			break;
+		}
+		else if(val < a[mid])
+		{
+			max = mid - 1;
+		}
+		else
+		{
+			min = mid + 1;
+		}
+	}
+}
+
+void main(int argc, char* argv[])
+{
+	int a[argc - 1], val;
+	printf("\nNEW CHILD, Process ID : %d", getpid());
+	printf("\nNEW CHILD, PARENT Process ID : %d", getppid());
+	
+	for(int i = 1; i < argc; i++)
+	{
+		a[i - 1] = atoi(argv[i]);
+	}
+	binarySearch(a, 0, argc-2, val);
+}
+*/
+
+/*
+OUTPUT :
+ubuntu@omkar:~$ gcc os_b.c -o b.out
+ubuntu@omkar:~$ gcc os_a.c
+ubuntu@omkar:~$ ./a.out ./b.out  7 2 8 4 7 6 2 1
+
+OLD CHILD process, PROCESS ID : 7258
+SORTING : 1	2	2	4	6	7	7	8	
+
+NEW CHILD, Process ID : 7258
+NEW CHILD, PARENT Process ID : 7257
+Enter the value to search :6
+Location :4
+PARENT PROCESS, Process ID: 7257
+*/
